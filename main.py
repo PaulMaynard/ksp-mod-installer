@@ -23,24 +23,24 @@ def get_folder():
 
 def find_gamedata(mod):
     """
-    Determines GameData location in mod folder
+    Determines GameData location in mod directory
     """
     datas = list(mod.glob("**/GameData/"))
     if len(datas) == 0:
-        if input(f"Couldn't find GameData, use folder root? [y]/n: ") in ("y", "Y", ""):
+        if input(f"Couldn't find GameData, use directory root? [y]/n: ") in ("y", "Y", ""):
             return mod
-    if len(datas) == 1:
+    elif len(datas) == 1:
         if input(f"Found GameData at {datas[0]}, use? [y]/n: ") in ("y", "Y", ""):
             return datas[0]
     else:
         print("Found multiple GameDatas, choose one:")
         for i, gd in enumerate(datas):
-            print(f"{i}, {gd}")
-        i = int(input(": "))
-        if input(f"Use GameData at {datas[i]}? [y]/n: ") in ("y", "Y", ""):
-            return datas[i]
+            print(f"[{i}]: {gd}")
+        i = input()
+        if i:
+            return datas[int(i)]
     
-    return mod / input("Enter GameData location in mod folder:\n")
+    return mod / input("Enter GameData location in mod directory:\n")
 
 def main():
     loc = get_folder()
@@ -48,10 +48,13 @@ def main():
     if len(sys.argv) > 1:
         mod_folder = Path(sys.argv[1])
     else:
-        mod_folder = Path(input("Choose mod folder: "))
+        mod_folder = Path(input("Choose mod directory: "))
         print()
+    if not mod_folder.is_dir():
+        print(f"Directory {mod_folder} not found!")
+        quit()
     data = find_gamedata(mod_folder)
-    print(f"installing from {data}...")
+    print(f"Installing from {data}...")
 
 if __name__ == "__main__":
     main()
