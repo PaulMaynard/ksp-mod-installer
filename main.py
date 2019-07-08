@@ -53,6 +53,10 @@ def get_dir(loc):
     if ploc.suffix == ".zip":
         ziploc = loc
         name = ploc.stem
+    elif loc[:3] == "http://:":
+        name = "mod"
+        ziploc = Path(temp.name, name + ".zip")
+        download(loc, ziploc)
     elif loc[:3] == "sd:":
         mod = json.load(request.urlopen("https://spacedock.info/api/mod/" + loc[3:]))
         name = mod["name"]
@@ -85,6 +89,11 @@ def get_dir(loc):
             name = comps[1]
             ziploc = Path(temp.name, name + ".zip")
             download(f"https://github.com/{comps[0]}/{comps[1]}/archive/{comps[2]}.zip", ziploc)
+        elif len(comps) == 2:
+            mod = json.load(request.urlopen(f"https://api.github.com/repos/{comps[0]}/{comps[1]}/releases"))
+            name = mod[0]["assets"][0]["name"]
+            ziploc = Path(temp.name, name + ".zip")
+            download(mod[0]["assets"][0]["browser_download_url"], ziploc)
         else:
             print(f"Invalid repo!")
             temp.cleanup()
