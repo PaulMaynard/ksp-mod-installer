@@ -5,6 +5,8 @@ from tempfile import TemporaryDirectory
 import urllib.request as request
 import shutil
 import json
+from itertools import count
+from math import floor, ceil
 
 STEAM = Path("C:/Program Files (x86)/Steam/steamapps/common/Kerbal Space Program/GameData")
 STEAM_64 = Path("C:/Program Files/Steam/steamapps/common/Kerbal Space Program/GameData")
@@ -41,8 +43,10 @@ def get_dir(loc):
     to be cleaned up if the mod comes from a zip or is downoaded.
     """
     ploc = Path(loc)
-    if ploc.is_dir():
-        return (ploc, None)
+    try:
+        if ploc.is_dir():
+            return (ploc, None)
+    except: pass
 
     temp = TemporaryDirectory()
     if ploc.suffix == ".zip":
@@ -54,10 +58,18 @@ def get_dir(loc):
         if prompt(f"Install {name}?"):
             ziploc = Path(temp.name, name + ".zip")
             print("Downloading...")
-            with request.urlopen("https://spacedock.info" + mod["versions"][0]["download_path"]) as res:
-                with open(ziploc, "wb") as f:
-                    shutil.copyfileobj(res, f)
+            download("https://spacedock.info" + mod["versions"][0]["download_path"], ziploc)
         else:
+            temp.cleanup()
+            sys.exit()
+    elif loc[:3] == "gh:":
+        comps = loc[3:].split("/")
+        if len(comps) == 3:
+            name = comps[1]
+            ziploc = Path(temp.name, name + ".zip")
+            download(f"https://github.com/{comps[0]}/{comps[1]}/archive/{comps[2]}.zip", ziploc)
+        else:
+            print(f"Invalid repo!")
             temp.cleanup()
             sys.exit()
     else:
@@ -68,6 +80,20 @@ def get_dir(loc):
     with ZipFile(ziploc) as zfil:
         zfil.extractall(Path(temp.name, name))
     return Path(temp.name), temp
+
+def download(url, loc, chunk=16*1024):
+    with request.urlopen(url) as res:
+        size = int(res.info()['Content-Length'])
+        print(f"Downloading {size // 1024:,}kb...")
+        with open(loc, "wb") as zipf:
+            for i in count():
+                frac = i*chunk / size
+                print(f"\r{frac*100:6.2f}% [{'-'*ceil(frac*70)}{' '*floor((1-frac)*70)}]", end="")
+                buf = res.read(chunk)
+                if not buf:
+                    print(f"\r100.00% [{'-'*70}]")
+                    break
+                zipf.write(buf)
 
 def find_gamedata(mod):
     """
@@ -108,7 +134,7 @@ def main():
     else:
         mod_loc = input("Choose mod location: ")
         print()
-    (mod_dir, temp) = get_dir(mod_loc)
+    mod_dir, temp = get_dir(mod_loc)
     print()
     datas = find_gamedata(mod_dir)
     print()

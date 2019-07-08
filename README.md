@@ -15,6 +15,9 @@ python main.py [PATH]
 - A path to a folder, from which the mod files will be *moved*, not copied.
 - A path to a zip file
 - `sd:<id>`, where `id` is the numeric id of the mod on spacedock.
+- ~~`sds:<name>`, where `name` is the name of the mod to search on spacedock.~~
+- `gh:<user>/<repo>[/<branch>]`, to download off of github. ~~Uses latest
+  release if no branch given~~, or downloads branch head if given. 
 
 ## Features
 
