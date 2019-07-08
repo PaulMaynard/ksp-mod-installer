@@ -3,6 +3,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 import urllib.request as request
+import urllib.parse as urlparse
 import shutil
 import json
 from itertools import count
@@ -62,8 +63,11 @@ def get_dir(loc):
             temp.cleanup()
             sys.exit()
     elif loc[:4] == "sds:":
-        mods = json.load(request.urlopen("https://spacedock.info/api/search/mod?query=" + loc[4:]))
+        mods = json.load(request.urlopen("https://spacedock.info/api/search/mod?query=" + urlparse.quote(loc[4:])))
         print(f"Found {len(mods)} mods:")
+        if not mods:
+            temp.cleanup()
+            sys.exit()
         for i, mod in enumerate(mods):
             print(f"[{i}]: {mod['name']}: {mod['short_description']} ({mod['author']})")
         n = input()
