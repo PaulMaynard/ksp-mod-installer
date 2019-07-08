@@ -10,3 +10,9 @@ to use a custom or dev version of a mod? Then this tool is for you!
 ```bash
 python main.py [PATH]
 ```
+
+## Features
+
+- Can install mods from folders ~~or zip files~~
+- Automatically finds Steam KSP install
+- Finds GameData in mod folder, can handle if there are multiple ones.
