@@ -61,6 +61,20 @@ def get_dir(loc):
         else:
             temp.cleanup()
             sys.exit()
+    elif loc[:4] == "sds:":
+        mods = json.load(request.urlopen("https://spacedock.info/api/search/mod?query=" + loc[4:]))
+        print(f"Found {len(mods)} mods:")
+        for i, mod in enumerate(mods):
+            print(f"[{i}]: {mod['name']}: {mod['short_description']} ({mod['author']})")
+        n = input()
+        if n in ("n", "N", ""):
+            temp.cleanup()
+            sys.exit()
+        else:
+            mod = mods[int(n)]
+            name = mod["name"]
+            ziploc = Path(temp.name, name + ".zip")
+            download("https://spacedock.info" + mod["versions"][0]["download_path"], ziploc)
     elif loc[:3] == "gh:":
         comps = loc[3:].split("/")
         if len(comps) == 3:
@@ -126,6 +140,8 @@ def install(src, dest):
         print(f.name)
         if dpath.is_dir():
             shutil.rmtree(dpath)
+        elif dpath.exists():
+            dpath.unlink()
         f.rename(dpath)
 
 def main():
