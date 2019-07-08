@@ -57,7 +57,6 @@ def get_dir(loc):
         name = mod["name"]
         if prompt(f"Install {name}?"):
             ziploc = Path(temp.name, name + ".zip")
-            print("Downloading...")
             download("https://spacedock.info" + mod["versions"][0]["download_path"], ziploc)
         else:
             temp.cleanup()
@@ -82,13 +81,14 @@ def get_dir(loc):
     return Path(temp.name), temp
 
 def download(url, loc, chunk=16*1024):
+    print(f"Downloading {url}, ", end="")
     with request.urlopen(url) as res:
         size = int(res.info()['Content-Length'])
-        print(f"Downloading {size // 1024:,}kb...")
+        print(f"{size // 1024:,}kb...")
         with open(loc, "wb") as zipf:
             for i in count():
                 frac = i*chunk / size
-                print(f"\r{frac*100:6.2f}% [{'-'*ceil(frac*70)}{' '*floor((1-frac)*70)}]", end="")
+                print(f"\r{frac*100:6.2f}% [{'-'*ceil(frac*69)}{' '*floor((1-frac)*69)}]", end="")
                 buf = res.read(chunk)
                 if not buf:
                     print(f"\r100.00% [{'-'*70}]")
@@ -109,7 +109,7 @@ def find_gamedata(mod):
     else:
         print("Found multiple GameDatas, choose one, or 'a' to use all:")
         for i, gd in enumerate(datas):
-            print(f"[{i}]: {gd}")
+            print(f"[{i}]: {gd.relative_to(mod)}")
         i = input()
         if i in ("a", "A"):
             return datas
@@ -122,7 +122,7 @@ def install(src, dest):
     for f in src.iterdir():
         dpath = dest / f.name
         print(f.name)
-        if dpath.exists():
+        if dpath.is_dir():
             shutil.rmtree(dpath)
         f.rename(dpath)
 
