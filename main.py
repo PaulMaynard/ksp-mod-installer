@@ -78,7 +78,7 @@ def find_gamedata(mod):
         if prompt(f"Couldn't find GameData, use directory root?"):
             return [mod]
     elif len(datas) == 1:
-        if prompt(f"Found GameData at {datas[0]}, use?"):
+        if prompt(f"Found GameData at {datas[0].relative_to(mod)}, use?"):
             return [datas[0]]
     else:
         print("Found multiple GameDatas, choose one, or 'a' to use all:")
@@ -95,7 +95,7 @@ def find_gamedata(mod):
 def install(src, dest):
     for f in src.iterdir():
         dpath = dest / f.name
-        print(f"{f} => {dpath}")
+        print(f.name)
         if dpath.exists():
             shutil.rmtree(dpath)
         f.rename(dpath)
@@ -109,13 +109,15 @@ def main():
         mod_loc = input("Choose mod location: ")
         print()
     (mod_dir, temp) = get_dir(mod_loc)
+    print()
     datas = find_gamedata(mod_dir)
+    print()
     for d in datas:
-        print(f"Installing from {d} ...")
+        print(f"Installing from {d.relative_to(mod_dir)} ...")
         install(d, ksp)
     if temp:
         temp.cleanup()
-    print("Done!")
+    print("\nDone!")
 
 if __name__ == "__main__":
     main()
