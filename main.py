@@ -130,20 +130,23 @@ def main():
     ksp = get_folder()
     print(f"installing to {ksp}...\n")
     if len(sys.argv) > 1:
-        mod_loc = sys.argv[1]
+        mod_locs = sys.argv[1:]
     else:
-        mod_loc = input("Choose mod location: ")
+        mod_locs = [input("Choose mod location: ")]
         print()
-    mod_dir, temp = get_dir(mod_loc)
-    print()
-    datas = find_gamedata(mod_dir)
-    print()
-    for d in datas:
-        print(f"Installing from {d.relative_to(mod_dir)} ...")
-        install(d, ksp)
-    if temp:
-        temp.cleanup()
-    print("\nDone!")
+    for i, mod_loc in enumerate(mod_locs):
+        print(f"Installing mod {(i+1)}/{len(mod_locs)}: {mod_loc}")
+        mod_dir, temp = get_dir(mod_loc)
+        print()
+        datas = find_gamedata(mod_dir)
+        print()
+        for d in datas:
+            print(f"Installing from {d.relative_to(mod_dir)} ...")
+            install(d, ksp)
+        if temp:
+            temp.cleanup()
+        print()
+    print("Done!")
 
 if __name__ == "__main__":
     main()

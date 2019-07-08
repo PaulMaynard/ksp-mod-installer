@@ -8,10 +8,10 @@ to use a custom or dev version of a mod? Then this tool is for you!
 ## Usage
 
 ```bash
-python main.py [PATH]
+python main.py [PATHS]
 ```
 
-`[PATH]` can be:
+`[PATHS]` can be:
 - A path to a folder, from which the mod files will be *moved*, not copied.
 - A path to a zip file
 - `sd:<id>`, where `id` is the numeric id of the mod on spacedock.
