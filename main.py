@@ -110,11 +110,13 @@ def find_gamedata(mod):
         print("Found multiple GameDatas, choose one, or 'a' to use all:")
         for i, gd in enumerate(datas):
             print(f"[{i}]: {gd.relative_to(mod)}")
-        i = input()
-        if i in ("a", "A"):
+        ds = input()
+        if ds in ("n", "N", ""):
+            return []
+        if ds in ("a", "A"):
             return datas
-        elif i:
-            return [datas[int(i)]]
+        elif ds:
+            return [datas[int(i)] for i in ds]
     
     return [mod / input("Enter GameData location in mod directory:\n")]
 
