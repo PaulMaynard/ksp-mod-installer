@@ -13,6 +13,6 @@ python main.py [PATH]
 
 ## Features
 
-- Can install mods from folders ~~or zip files~~
-- Automatically finds Steam KSP install
+- Can install mods from folders or zip files.
+- Automatically finds Steam KSP install.
 - Finds GameData in mod folder, can handle if there are multiple ones.

@@ -1,8 +1,10 @@
-from pathlib import Path
 import sys
+from pathlib import Path
+from zipfile import ZipFile
+from tempfile import TemporaryDirectory
 
-STEAM = Path("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Kerbal Space Program\\GameData")
-STEAM_64 = Path("C:\\Program Files\\Steam\\steamapps\\common\\Kerbal Space Program\\GameData")
+STEAM = Path("C:/Program Files (x86)/Steam/steamapps/common/Kerbal Space Program/GameData")
+STEAM_64 = Path("C:/Program Files/Steam/steamapps/common/Kerbal Space Program/GameData")
 
 def get_folder():
     """
@@ -20,6 +22,24 @@ def get_folder():
             return loc
     
     return Path(input("Enter KSP GameData Location:\n"))
+
+def get_dir(loc):
+    """
+    Gives a Path object representing the mod folder, and a temporary directory
+    to be cleaned up if the mod comes from a zip or is downoaded.
+    """
+    ploc = Path(loc)
+    if ploc.is_dir():
+        return (ploc, None)
+    elif ploc.suffix == ".zip":
+        print("Unzipping...")
+        temp = TemporaryDirectory()
+        with ZipFile(loc) as zfil:
+            zfil.extractall(temp.name)
+        return Path(temp.name), temp
+    else:
+        print(f"Directory {loc} not found!")
+        quit()
 
 def find_gamedata(mod):
     """
@@ -53,17 +73,18 @@ def main():
     ksp = get_folder()
     print(f"installing to {ksp}...\n")
     if len(sys.argv) > 1:
-        mod_folder = Path(sys.argv[1])
+        mod_loc = sys.argv[1]
     else:
-        mod_folder = Path(input("Choose mod directory: "))
+        mod_loc = input("Choose mod location: ")
         print()
-    if not mod_folder.is_dir():
-        print(f"Directory {mod_folder} not found!")
-        quit()
-    datas = find_gamedata(mod_folder)
+    (mod_dir, temp) = get_dir(mod_loc)
+    datas = find_gamedata(mod_dir)
     for d in datas:
         print(f"Installing from {d} ...")
         install(d, ksp)
+    if temp:
+        temp.cleanup()
+        
     print("Done!")
 
 if __name__ == "__main__":
