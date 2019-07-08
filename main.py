@@ -6,6 +6,15 @@ from tempfile import TemporaryDirectory
 STEAM = Path("C:/Program Files (x86)/Steam/steamapps/common/Kerbal Space Program/GameData")
 STEAM_64 = Path("C:/Program Files/Steam/steamapps/common/Kerbal Space Program/GameData")
 
+def prompt(text, default=True):
+    """
+    Displays a confirmation prompt with the specified text.
+    """
+    if default:
+        return input(text + " [y]/n: ").lower() in ("y", "yes", "")
+    else:
+        return input(text + " y/[n]: ") in ("n", "no", "")
+
 def get_folder():
     """
     Determines KSP installation location. Defaults to Steam install, otherwise
@@ -18,7 +27,7 @@ def get_folder():
         loc = STEAM_64
     
     if loc:
-        if input(f"Found KSP GameData at {loc}, install? [y]/n: ") in ("y", "Y", ""):
+        if prompt(f"Found KSP GameData at {loc}, install?"):
             return loc
     
     return Path(input("Enter KSP GameData Location:\n"))
@@ -47,10 +56,10 @@ def find_gamedata(mod):
     """
     datas = list(mod.rglob("GameData/"))
     if len(datas) == 0:
-        if input(f"Couldn't find GameData, use directory root? [y]/n: ") in ("y", "Y", ""):
+        if prompt(f"Couldn't find GameData, use directory root?"):
             return [mod]
     elif len(datas) == 1:
-        if input(f"Found GameData at {datas[0]}, use? [y]/n: ") in ("y", "Y", ""):
+        if prompt(f"Found GameData at {datas[0]}, use? [y]/n: "):
             return [datas[0]]
     else:
         print("Found multiple GameDatas, choose one, or 'a' to use all:")
@@ -67,6 +76,7 @@ def find_gamedata(mod):
 def install(src, dest):
     for f in src.iterdir():
         print(f"{f} => {dest / f.name}")
+        shutil.rmtree(dest / f.name)
         f.rename(dest / f.name)
 
 def main():
